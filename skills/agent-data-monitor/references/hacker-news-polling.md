@@ -1,31 +1,33 @@
-# Hacker News: checkpoint and backlog example
+# Hacker News: checkpoint example
 
-This flow was checked against production using listing `c96b10fb-7db3-4761-8b45-be46c4825d78`. Fetch current docs before reuse:
-
-```bash
-agent-data docs c96b10fb-7db3-4761-8b45-be46c4825d78
-agent-data call c96b10fb-7db3-4761-8b45-be46c4825d78 stories-newest \
-  --input-json '{"query":{"limit":2}}'
-```
-
-The sample size of two demonstrates the protocol; it is not a retrieval cap. A real baseline returned story IDs `50082127` and `50082113`, with `checkpoint: "50082127"` and `source_limit: 500`. The newest endpoint's `next_cursor` traverses a moving newest-story list; it is distinct from the polling continuation.
-
-To demonstrate a backlog, the probe deliberately started from the older observed story's numeric `source_id`:
+Read current docs before configuring the monitor:
 
 ```bash
-agent-data call c96b10fb-7db3-4761-8b45-be46c4825d78 stories-poll \
-  --input-json '{"query":{"after_id":50082113,"limit":2}}'
+agent-data docs news-ycombinator-com
+agent-data call news-ycombinator-com feeds-by-feed \
+  --input-json '{"path":{"feed":"newest"}}'
 ```
 
-Actual progression:
+The live newest feed returns one page in source order, a `next_cursor`, and `source_meta` with the source URL, retrieval time, and coverage. A real page returned 30 records; its first story had `id: "50249237"` and `source_id: 50249237`.
 
-| Stage | Returned IDs | `next_poll_after` | `next_poll_cursor` |
-|---|---|---|---|
-| Initial poll | `50082164`, `50082151` | `"50082113"` | Non-null opaque cursor |
-| Follow returned cursor | `50082141`, `50082127` | `"50082164"` | `null` |
+For a monitor starting now, save the newest observed story's numeric `source_id` as the initial checkpoint after recording the baseline. Poll from that saved value:
 
-Both pages reported `checkpoint_found: true`. Persist records and pending changes, then pass the returned cursor unchanged as `query.cursor` to continue. Once `next_poll_cursor` is null, commit `next_poll_after` for the next poll. Do not advance to the newest returned ID while a backlog remains.
+```bash
+agent-data call news-ycombinator-com poll \
+  --input-json '{"query":{"after_id":50249237,"limit":20}}'
+```
 
-For this API, response IDs/checkpoints are strings; `after_id` requires an integer. Validate and convert the saved checkpoint to the documented numeric type before constructing typed input. A probe passing a string failed CLI validation. `--input-json` accepts JSON text, not an `@filename`; pass a saved JSON file's contents as the argument when using files.
+Replace the example checkpoint with the monitor's saved value. The real call returned two stories, `50249275` and `50249257`, with:
 
-Current docs say `checkpoint_found: false` exposes the recoverable source window after a checkpoint expires. Treat that as a coverage gap, drain the available records, deduplicate against saved state, and report unrecoverable history. That expired-checkpoint branch was documented but was not exercised in this probe. A successful short backlog does not prove lossless long-running monitoring or detection of updates to older stories.
+- `checkpoint_found: true`
+- `status: "complete"`
+- `next_cursor: null`
+- `next_checkpoint: 50249275`
+- `unresolved_ids: []`
+- `source_window_size: 500`
+
+Persist the records and pending changes before committing `next_checkpoint`. For a paginated backlog, keep the original `after_id` and pass the returned `next_cursor` unchanged. Advance the checkpoint only after the backlog is complete and any unresolved records or coverage gaps have been handled. The poll cursor is separate from the feed cursor.
+
+The source reports a moving newest-story window, not durable history. Retain `status`, `checkpoint_found`, `unresolved_ids`, and `coverage` with every run; surface incomplete coverage rather than claiming a lossless scan. Response story IDs are strings, while `source_id`, `after_id`, and `next_checkpoint` are integers.
+
+This check demonstrated one complete poll from a recently observed checkpoint. Multi-page backlog recovery and expired checkpoints were not exercised. New-story polling also does not establish detection of changes to older stories; refresh those records separately when the monitoring objective requires it.

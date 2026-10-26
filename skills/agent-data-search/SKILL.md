@@ -61,7 +61,7 @@ In a production check, `arxiv.org` returned the arXiv API under `direct`; `resea
 - When the results concern the right source or record type but inspected candidates lack required coverage, continue the group while `has_more` is true. Set the next offset to the response's `offset + count`; keep the query and filters unchanged.
 - Stop discovery once an API satisfies the task's requirements. If discovery ends without a fit, report the queries and candidates checked and the remaining coverage gap. Do not claim catalog-wide absence from a partial search.
 
-| CLI option | Behavior in 0.12.3 |
+| CLI option | Behavior |
 |---|---|
 | `--limit N` | Results per group; default 20, accepted range 1–100. |
 | `--direct-offset N` | Continue direct matches. |

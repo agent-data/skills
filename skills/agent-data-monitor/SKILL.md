@@ -8,14 +8,14 @@ description: >-
   Owns source selection, retrieval state, change detection, scheduling, and
   delivery. Uses agent-data-search when it needs a data source.
 metadata:
-  version: "0.2.2-draft"
+  version: "0.2.3-draft"
 ---
 
 # Monitor data with agent-data
 
 Build a recurring workflow that retrieves the right data, retains progress, and delivers the requested outcome. Agent-data supplies API access and `notify`; the released CLI has no recurring scheduler. Use the host's actual scheduling tools or an existing application scheduler.
 
-Use [agent-data-cli](../agent-data-cli/SKILL.md) for authentication, typed calls, output capture, and notification mechanics. The commands described here were checked against CLI 0.12.3. Follow current tool schemas and API docs for the selected environment.
+Use [agent-data-cli](../agent-data-cli/SKILL.md) for authentication, typed calls, output capture, and notification mechanics. Follow current tool schemas and API docs for the selected environment.
 
 ## 1. Define the recurring outcome
 
@@ -37,7 +37,7 @@ Choose retrieval based on the actual contract:
 
 Check whether an incremental feed reports updates to existing records or only new records. For changing prices, availability, or engagement, refresh the relevant records when the feed does not report those changes. Use source timestamps and documented caching semantics to assess freshness; scheduling a call more often does not guarantee fresher data.
 
-For the tested Hacker News checkpoint flow, read the [polling example](references/hacker-news-polling.md). Its checkpoint IDs are strings in responses but integers in polling inputs; `next_poll_after` is an ID, not a delay.
+For the tested Hacker News checkpoint flow, read the [polling example](references/hacker-news-polling.md). It distinguishes a continuation cursor from the next checkpoint and exposes the source's limited recovery window.
 
 ## 3. Persist retrieval and delivery state separately
 

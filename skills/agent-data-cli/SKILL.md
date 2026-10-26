@@ -6,12 +6,12 @@ description: >-
   output handling, and error recovery. Other agent-data skills use this skill
   when they need shared CLI mechanics.
 metadata:
-  version: "0.2.1-draft"
+  version: "0.2.2-draft"
 ---
 
 # Use the agent-data CLI
 
-These instructions were checked against published CLI 0.12.3. Use installed command help and the selected API's current docs for the environment you are calling. Read the section needed for the task; a working connection does not need repeated setup.
+Use installed command help and the selected API's current docs. Read the section needed for the task; a working connection does not need repeated setup.
 
 ## Setup and identity
 
@@ -30,19 +30,40 @@ Use Node.js 22.20.0 or later. If the CLI is missing, use the project's installat
 npx --yes agent-data@latest --help
 ```
 
-For this release, credentials resolve from `--api-key`, then `AGENT_DATA_API_KEY`, then saved `~/.agent-data/config.json`. Use an existing authorized credential. If none is configured, obtain a key through [account settings](https://agent-data.motie.dev/settings/account) and configure it through the environment or guided setup. Follow [current setup documentation](https://docs.agent-data.dev/llms.txt) for another release.
+Sign in with `agent-data auth login` when credentials are missing. Open the returned URL and approve its code; the CLI saves the sign-in and renews access automatically. `--no-wait` returns the pending login immediately; use the returned login ID with `agent-data auth login --resume LOGIN_ID` after approval.
 
-The service URL resolves from `--base-url`, then `AGENT_DATA_BASE_URL`, then the release default. Preserve an intentionally selected production, beta, or local environment.
+Credentials resolve from `--api-key`, then `AGENT_DATA_API_KEY`, then selected browser sign-in, then the legacy key in `~/.agent-data/config.json`. API keys remain available through [account settings](https://agent-data.motie.dev/settings/account). A failed selected sign-in does not fall back to a stored key; inspect `agent-data auth status` and sign in again when required.
 
-## Install or update intentionally
+The service URL resolves from `--base-url`, then `AGENT_DATA_BASE_URL`, then the release default. Preserve the selected service URL and `--auth-dir` through login and subsequent commands.
+
+## Install and update
+
+`init` signs in, installs the CLI globally, and uses Vercel's skills installer to install the five skills from [agent-data/skills](https://github.com/agent-data/skills). Select the actual host:
 
 ```bash
-agent-data init --help
+npx --yes agent-data@latest init --codex
 ```
 
-`init` combines credential setup, global CLI installation/update, and copying agent skills. In 0.12.3 its targets are `--codex`, `--claude-code`, `--open-claw`, `--hermes`, and `--nano-claw`; `--yes` selects noninteractive setup and fails on missing required inputs. Use the target matching the actual host. `init` may overwrite installed skill copies and is not a prelude to ordinary requests.
+Targets are `--codex`, `--claude-code`, `--open-claw`, `--hermes`, and `--nano-claw`. Multiple target flags install for those agents. The first four use global skill scope. NanoClaw uses project scope at `--nano-claw-path <repo>` with the Claude Code skill layout. `--yes` skips setup confirmations but still requires browser approval when signing in.
 
-Updating the npm CLI does not refresh previously installed skill copies. Version 0.12.3's `init` copies the packaged `SKILL.md` only; it does not install this v0.2 multi-skill draft. Inspect the installed version and skill paths when diagnosing stale instructions. For an intended CLI update, use the existing package installation method and verify `--version` afterward.
+To install skills without running CLI setup:
+
+```bash
+npx skills add agent-data/skills --global --agent codex
+```
+
+Select all five skills so their cross-references resolve. Omit `--global` for a project installation; run it from that project. Use Vercel's agent names `openclaw` and `hermes-agent` for direct installation to OpenClaw and Hermes.
+
+Update the CLI through its npm installation method. Refresh skills separately through Vercel's standard commands:
+
+```bash
+npx skills check
+npx skills update
+```
+
+These commands check installed sources and apply available updates; upgrading the CLI alone does not update skills. Restart the coding agent after installation or refresh so it reloads the instructions.
+
+For an old standalone `agent-data` skill, inspect its installation with `npx skills list --global`, remove that skill with `npx skills remove agent-data --global --agent codex`, then install `agent-data/skills`. Substitute the actual agent and scope. Older copied files do not gain update tracking automatically. If the legacy copy is outside the installer's recognized directories, remove that specific copy through its original installation method.
 
 ## Discover commands and inspect API docs
 
@@ -65,15 +86,15 @@ Start with the selected route's current example. Simple inputs may use `--NAME V
 
 Use `--input-json` when the published machine contract supports it and typed values, nested bodies, or conflicting parameter names require explicit locations. Its envelope has optional `path`, `query`, and `header` objects. A body uses `body.contentType` and `body.value`. Supply only needed locations and values; omission and explicit JSON `null` differ.
 
-This real Hacker News example was executed during drafting; re-read docs before reuse:
+For example, the Hacker News newest feed uses a path parameter. Read its current docs before reuse:
 
 ```bash
 agent-data docs c96b10fb-7db3-4761-8b45-be46c4825d78
-agent-data call c96b10fb-7db3-4761-8b45-be46c4825d78 stories-newest \
-  --input-json '{"query":{"limit":2}}'
+agent-data call c96b10fb-7db3-4761-8b45-be46c4825d78 feeds-by-feed \
+  --input-json '{"path":{"feed":"newest"}}'
 ```
 
-Here `2` is a validation sample, not a cap on the user's retrieval. `--method` disambiguates routes when necessary. `call --dry-run` displays the resolved request without executing the data route, but still fetches docs over the network; it does not validate returned data.
+`--method` disambiguates routes when necessary. `call --dry-run` displays the resolved request without executing the data route, but still fetches docs over the network; it does not validate returned data.
 
 For direct HTTP or application code, use the published URL, authentication, method, and serialization contract. Do not derive URLs from handles or assume MCP inputs accept the CLI envelope.
 
