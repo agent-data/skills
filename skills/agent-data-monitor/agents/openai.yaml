@@ -1,0 +1,3 @@
+interface:
+  display_name: "Monitor with agent-data"
+  short_description: "Track changes and run recurring data workflows"

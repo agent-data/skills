@@ -1,0 +1,3 @@
+interface:
+  display_name: "Extend an agent-data API"
+  short_description: "Add missing capabilities to existing APIs"

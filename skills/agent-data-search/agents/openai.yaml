@@ -1,0 +1,3 @@
+interface:
+  display_name: "Search agent-data APIs"
+  short_description: "Find suitable APIs in the agent-data catalog"

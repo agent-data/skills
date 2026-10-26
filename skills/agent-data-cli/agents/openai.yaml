@@ -1,0 +1,3 @@
+interface:
+  display_name: "Use the agent-data CLI"
+  short_description: "Set up, call, and troubleshoot agent-data commands"
