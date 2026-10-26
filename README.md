@@ -42,7 +42,6 @@ For project installations, repeat the original explicit-target install from that
 npx skills add agent-data/skills --agent claude-code --skill agent-data-cli agent-data-search agent-data-build agent-data-extend agent-data-monitor --yes
 ```
 
-An update initiated from a different agent can select that agent's project directory instead of refreshing the original copies. The explicit target preserves the intended directory using Vercel's standard installer.
 
 For a legacy standalone `agent-data` skill:
 
