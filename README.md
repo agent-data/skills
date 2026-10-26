@@ -31,11 +31,18 @@ The CLI's setup command installs all five skills for the selected host. Skill fi
 ## Refresh
 
 ```sh
-npx skills check
-npx skills update
+npx skills update agent-data-cli agent-data-search agent-data-build agent-data-extend agent-data-monitor --global
 ```
 
-Use Vercel's standard source tracking and update commands. CLI upgrades and skill updates are independent. Project installations should be managed from that project.
+CLI upgrades and skill updates are independent. In Vercel skills 1.7.4, `check` is an alias for `update` and can change installed files.
+
+For project installations, repeat the original explicit-target install from that project. For NanoClaw:
+
+```sh
+npx skills add agent-data/skills --agent claude-code --skill agent-data-cli agent-data-search agent-data-build agent-data-extend agent-data-monitor --yes
+```
+
+An update initiated from a different agent can select that agent's project directory instead of refreshing the original copies. The explicit target preserves the intended directory using Vercel's standard installer.
 
 For a legacy standalone `agent-data` skill:
 
@@ -51,4 +58,4 @@ Use the agent and scope where the old copy is installed. Copied legacy files do 
 
 These skills use the Agent Skills format. Codex, Claude Code, OpenClaw, and Hermes installation paths are delegated to Vercel; NanoClaw uses its project's Claude Code skill layout. Installation and asset resolution are distinct from validation inside an agent's runtime. Consult current CLI help and the selected API's docs before executing commands.
 
-Supporting files are inside each skill directory. Keep all five skill directories together so sibling links resolve. The Job Search plugin is separate and is not distributed by this repository.
+Supporting files are inside each skill directory. Keep all five skill directories together so sibling links resolve.

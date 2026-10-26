@@ -57,11 +57,18 @@ Select all five skills so their cross-references resolve. Omit `--global` for a 
 Update the CLI through its npm installation method. Refresh skills separately through Vercel's standard commands:
 
 ```bash
-npx skills check
-npx skills update
+npx skills update agent-data-cli agent-data-search agent-data-build agent-data-extend agent-data-monitor --global
 ```
 
-These commands check installed sources and apply available updates; upgrading the CLI alone does not update skills. Restart the coding agent after installation or refresh so it reloads the instructions.
+This refreshes the five global skills from their tracked source. Upgrading the CLI alone does not update skills. In Vercel skills 1.7.4, `check` is an alias for `update` and can change installed files.
+
+For project skills, repeat `skills add` from that project with the original explicit agent target. For NanoClaw:
+
+```bash
+npx skills add agent-data/skills --agent claude-code --skill agent-data-cli agent-data-search agent-data-build agent-data-extend agent-data-monitor --yes
+```
+
+Restart the coding agent after installation or refresh so it reloads the instructions.
 
 For an old standalone `agent-data` skill, inspect its installation with `npx skills list --global`, remove that skill with `npx skills remove agent-data --global --agent codex`, then install `agent-data/skills`. Substitute the actual agent and scope. Older copied files do not gain update tracking automatically. If the legacy copy is outside the installer's recognized directories, remove that specific copy through its original installation method.
 
