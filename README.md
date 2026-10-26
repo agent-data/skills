@@ -20,13 +20,13 @@ npx skills add agent-data/skills --global --agent codex
 
 Select all five skills; they link to one another. Use `--agent claude-code`, `--agent openclaw`, or `--agent hermes-agent` for other hosts. Multiple names can follow `--agent`. Omit `--global` to install into the current project. For a NanoClaw project, run the project-scope installation from its repository with `--agent claude-code`.
 
-Install the agent-data CLI and configure authentication as well with:
+CLI 0.13.0 and later can install the skills while configuring authentication:
 
 ```sh
 npx --yes agent-data@latest init --codex
 ```
 
-The CLI's setup command installs all five skills for the selected host. Skill files and references live here; the CLI does not carry a separate copy. Restart the coding agent after installation or an update.
+Earlier CLI releases install the legacy single skill; use the standalone Vercel command above for this five-skill set. Skill files and references live here; the CLI does not carry a separate copy. Restart the coding agent after installation or an update.
 
 ## Refresh
 

@@ -38,7 +38,7 @@ The service URL resolves from `--base-url`, then `AGENT_DATA_BASE_URL`, then the
 
 ## Install and update
 
-`init` signs in, installs the CLI globally, and uses Vercel's skills installer to install the five skills from [agent-data/skills](https://github.com/agent-data/skills). Select the actual host:
+In CLI 0.13.0 and later, `init` signs in, installs the CLI globally, and uses Vercel's skills installer to install the five skills from [agent-data/skills](https://github.com/agent-data/skills). Select the actual host:
 
 ```bash
 npx --yes agent-data@latest init --codex
@@ -46,7 +46,7 @@ npx --yes agent-data@latest init --codex
 
 Targets are `--codex`, `--claude-code`, `--open-claw`, `--hermes`, and `--nano-claw`. Multiple target flags install for those agents. The first four use global skill scope. NanoClaw uses project scope at `--nano-claw-path <repo>` with the Claude Code skill layout. `--yes` skips setup confirmations but still requires browser approval when signing in.
 
-To install skills without running CLI setup:
+For an earlier CLI release, or to install skills without running CLI setup:
 
 ```bash
 npx skills add agent-data/skills --global --agent codex
